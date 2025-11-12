@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nBCA: TruFill Ratio Explorer</title>
+  <style>
+    :root {
+      --jnj-red: #d91c1f;
+      --bg: #f9f9fb;
+      --panel: #ffffff;
+      --border: #e0e0e0;
+      --text: #212121;
+      --highlight: #fff7f7;
+    }
+
+    body {
+      font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      max-width: 740px;
+      width: 100%;
+      padding: 28px 32px;
+    }
+
+    h1 {
+      color: var(--jnj-red);
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .section {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .output-box {
+      background: var(--highlight);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .highlight {
+      background: #fef2f2;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border-left: 3px solid var(--jnj-red);
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>nBCA : TruFill Ratio Explorer</h1>
+
+    <p>Select NBCA:EO ratio and observe viscosity, polymerization speed, and push force difference vs Isovue.</p>
+
+    <div class="section">
+      <label for="ratioSlider">NBCA:EO Ratio</label>
+      <input type="range" id="ratioSlider" min="1" max="5" step="1" value="1" />
+      <div id="ratioValue" class="output-box">1:1</div>
+    </div>
+
+    <div class="section">
+      <label>Viscosity (cP)</label>
+      <div id="viscosity" class="output-box">9.1 cP</div>
+
+      <label>Polymerization Time</label>
+      <div id="polymer" class="output-box highlight">Very Fast (tip reflux risk)</div>
+
+      <label>% ↑ vs Isovue (1 mL)</label>
+      <div id="force" class="output-box highlight">+25%</div>
+    </div>
+
+    <div class="section">
+      <label>Contrast Variant</label>
+      <select id="contrastVariant" class="output-box">
+        <option value="300">Isovue 300</option>
+        <option value="370">Isovue 370</option>
+        <option value="300dilute">50% Saline / 50% Isovue 300</option>
+        <option value="370dilute">50% Saline / 50% Isovue 370</option>
+      </select>
+    </div>
+
+    <footer>© 2025 nBCA Teachings | Experimental Data Visualization</footer>
+  </div>
+
+  <script>
+    const data = {
+      1: { viscosity: 9.1, polymer: "Very Fast (tip reflux risk)", force: 25 },
+      2: { viscosity: 12.7, polymer: "Fast set (possible tip occlusion)", force: 45 },
+      3: { viscosity: 15.4, polymer: "Moderate polymerization", force: 65 },
+      4: { viscosity: 18.2, polymer: "Slower polymerization", force: 85 },
+      5: { viscosity: 21.0, polymer: "Slowest set (stable delivery)", force: 100 },
+    };
+
+    const ratioSlider = document.getElementById("ratioSlider");
+    const ratioValue = document.getElementById("ratioValue");
+    const viscosityBox = document.getElementById("viscosity");
+    const polymerBox = document.getElementById("polymer");
+    const forceBox = document.getElementById("force");
+    const contrastSelect = document.getElementById("contrastVariant");
+
+    ratioSlider.addEventListener("input", update);
+    contrastSelect.addEventListener("change", update);
+
+    function update() {
+      const ratio = ratioSlider.value;
+      const contrast = contrastSelect.value;
+      const base = data[ratio];
+
+      ratioValue.textContent = `${ratio}:1`;
+      viscosityBox.textContent = `${base.viscosity.toFixed(1)} cP`;
+      polymerBox.textContent = base.polymer;
+
+      // Adjusted force % if diluted contrast selected
+      let adjForce = base.force;
+      if (contrast.includes("dilute")) adjForce *= 0.8;
+
+      forceBox.textContent = `+${adjForce.toFixed(0)}%`;
+    }
+
+    update();
+  </script>
+</body>
+</html>
