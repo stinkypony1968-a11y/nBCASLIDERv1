@@ -1,382 +1,738 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>nBCA : TruFill Ratio Explorer</title>
-    <style>
-      :root {
-        --jnj-red: #d91c1f;
-        --jnj-gray-light: #f7f7f7;
-        --jnj-gray-mid: #e0e0e0;
-        --jnj-gray-dark: #4a4a4a;
-        --jnj-highlight: #fff3f3;
-        --jnj-text-dark: #212121;
-        --jnj-bg: #ffffff;
-      }
-      body {
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        background-color: var(--jnj-bg);
-        color: var(--jnj-text-dark);
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        padding: 16px;
-      }
-      .card {
-        background: var(--jnj-gray-light);
-        width: 100%;
-        max-width: 760px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-      }
-      h1 { text-align: center; margin-top: 0; font-size: 22px; color: var(--jnj-red); letter-spacing: 0.5px; }
-      .intro { font-size: 0.9em; color: var(--jnj-gray-dark); text-align: center; }
-      .ratioHeader { background: var(--jnj-gray-mid); border-radius: 8px; padding: 12px 16px; margin-top: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-      .ratioLabelHeading { font-size: 0.9em; color: var(--jnj-text-dark); }
-      .ratioValue { font-weight: bold; font-size: 1.4em; color: var(--jnj-red); }
-      .ratioGuidance { font-size: 0.8em; color: var(--jnj-gray-dark); text-align: right; }
-      .sliderSection { width: 100%; margin-top: 16px; }
-      input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; background: var(--jnj-gray-mid); border-radius: 5px; outline: none; }
-      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--jnj-red); cursor: pointer; }
-      input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--jnj-red); cursor: pointer; }
-      .sliderTicks { display: flex; justify-content: space-between; font-size: 0.8em; color: var(--jnj-gray-dark); margin-top: 6px; }
-      .metricsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-top: 16px; align-items: stretch; }
-      .metricCard { background: #fff; border: 1px solid var(--jnj-gray-mid); border-radius: 10px; padding: 14px 12px 14px; text-align: center; display: flex; flex-direction: column; gap: 6px; min-height: 110px; transition: background-color 0.3s ease; }
-      .metricCard.highlight { background: var(--jnj-highlight); border-color: var(--jnj-red); }
-      .metricTitle { font-size: 0.8em; color: var(--jnj-gray-dark); margin: 0 0 4px; }
-      .metricValueMain { font-size: 1.6em; font-weight: 600; color: var(--jnj-text-dark); }
-      .metricSub { font-size: 0.75em; color: var(--jnj-gray-dark); }
-      .metricSpeedValue { font-size: 0.9em; font-weight: 700; color: var(--jnj-red); }
-      .inputField { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--jnj-gray-mid); background: #fff; color: var(--jnj-text-dark); }
-      .row { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; }
-      .flowSub { font-size: 0.75em; color: var(--jnj-gray-dark); margin-top: 4px; }
-      .tipsBlock { margin-top: 20px; background: #fff; border-left: 4px solid var(--jnj-red); border-radius: 6px; padding: 12px; }
-      .tipsTitle { font-size: 0.9em; color: var(--jnj-red); margin-bottom: 6px; font-weight: 600; }
-      .tipsList { font-size: 0.8em; color: var(--jnj-gray-dark); line-height: 1.5; margin: 0; padding-left: 16px; }
-      .disclaimer { font-size: 0.7em; color: var(--jnj-gray-dark); text-align: center; margin-top: 20px; font-style: italic; }
-      select.inputField { width: auto; }
-      .mmEcho { font-size: 0.75em; color: var(--jnj-gray-dark); }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>nBCA : TruFill Ratio Explorer</h1>
-      <p class="intro">
-        Slide to change dilution ratio (x:1). Then match the catheter ID/length and pick your contrast (Isovue). This will show how
-        much harder nBCA is to push than your baseline contrast through the same setup.
-      </p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>nBCA : TruFill Ratio Explorer</title>
+  <style>
+    :root {
+      --jnj-red: #d91c1f;
+      --jnj-gray-light: #f7f7f7;
+      --jnj-gray-mid: #e0e0e0;
+      --jnj-gray-dark: #4a4a4a;
+      --jnj-highlight: #fff3f3;
+      --jnj-text-dark: #212121;
+      --jnj-bg: #ffffff;
+    }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: var(--jnj-bg);
+      color: var(--jnj-text-dark);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      background: var(--jnj-gray-light);
+      width: 100%;
+      max-width: 760px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 22px;
+      color: var(--jnj-red);
+      letter-spacing: 0.5px;
+    }
+    .intro {
+      font-size: 0.9em;
+      color: var(--jnj-gray-dark);
+      text-align: center;
+    }
+    .ratioHeader {
+      background: var(--jnj-gray-mid);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ratioLabelHeading {
+      font-size: 0.9em;
+      color: var(--jnj-text-dark);
+    }
+    .ratioValue {
+      font-weight: bold;
+      font-size: 1.4em;
+      color: var(--jnj-red);
+    }
+    .ratioGuidance {
+      font-size: 0.8em;
+      color: var(--jnj-gray-dark);
+      text-align: right;
+    }
+    .sliderSection {
+      width: 100%;
+      margin-top: 16px;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: var(--jnj-gray-mid);
+      border-radius: 5px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--jnj-red);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--jnj-red);
+      cursor: pointer;
+    }
+    .sliderTicks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8em;
+      color: var(--jnj-gray-dark);
+      margin-top: 6px;
+    }
+    .metricsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+      align-items: stretch;
+    }
+    .metricCard {
+      background: #fff;
+      border: 1px solid var(--jnj-gray-mid);
+      border-radius: 10px;
+      padding: 14px 12px 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 110px;
+      transition: background-color 0.3s ease;
+    }
+    .metricCard.highlight {
+      background: var(--jnj-highlight);
+      border-color: var(--jnj-red);
+    }
+    .metricTitle {
+      font-size: 0.8em;
+      color: var(--jnj-gray-dark);
+      margin: 0 0 4px;
+    }
+    .metricValueMain {
+      font-size: 1.6em;
+      font-weight: 600;
+      color: var(--jnj-text-dark);
+    }
+    .metricSub {
+      font-size: 0.75em;
+      color: var(--jnj-gray-dark);
+    }
+    .metricSpeedValue {
+      font-size: 0.9em;
+      font-weight: 700;
+      color: var(--jnj-red);
+    }
+    .inputField {
+      width: 100%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--jnj-gray-mid);
+      background: #fff;
+      color: var(--jnj-text-dark);
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .flowSub {
+      font-size: 0.75em;
+      color: var(--jnj-gray-dark);
+      margin-top: 4px;
+    }
+    .tipsBlock {
+      margin-top: 20px;
+      background: #fff;
+      border-left: 4px solid var(--jnj-red);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .tipsTitle {
+      font-size: 0.9em;
+      color: var(--jnj-red);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .tipsList {
+      font-size: 0.8em;
+      color: var(--jnj-gray-dark);
+      line-height: 1.5;
+      margin: 0;
+      padding-left: 16px;
+    }
+    .disclaimer {
+      font-size: 0.7em;
+      color: var(--jnj-gray-dark);
+      text-align: center;
+      margin-top: 20px;
+      font-style: italic;
+    }
+    select.inputField {
+      width: auto;
+    }
+    .mmEcho {
+      font-size: 0.75em;
+      color: var(--jnj-gray-dark);
+    }
 
-      <div class="ratioHeader">
-        <div>
-          <div class="ratioLabelHeading">Ratio (x:1)</div>
-          <div class="ratioValue" id="ratioValue">4:1</div>
+    /* ---- Percentage Calculator styles ---- */
+    .pctCalcSection {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fff3f3 0%, #ffffff 100%);
+      border: 2px solid var(--jnj-red);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .pctCalcTitle {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: var(--jnj-red);
+      text-align: center;
+      margin: 0 0 4px;
+    }
+    .pctCalcSubtitle {
+      font-size: 0.8em;
+      color: var(--jnj-gray-dark);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .pctInputRow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .pctInputRow label {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: var(--jnj-text-dark);
+    }
+    .pctInput {
+      width: 80px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 2px solid var(--jnj-red);
+      background: #fff;
+      color: var(--jnj-text-dark);
+      font-size: 1.1em;
+      font-weight: 700;
+      text-align: center;
+    }
+    .pctInput:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(217, 28, 31, 0.2);
+    }
+    .pctResultsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .pctResultCard {
+      background: #fff;
+      border: 1px solid var(--jnj-gray-mid);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .pctResultCard.pctHighlight {
+      background: var(--jnj-highlight);
+      border-color: var(--jnj-red);
+    }
+    .pctResultLabel {
+      font-size: 0.75em;
+      color: var(--jnj-gray-dark);
+      margin-bottom: 4px;
+    }
+    .pctResultValue {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: var(--jnj-text-dark);
+    }
+    .pctResultValue.red {
+      color: var(--jnj-red);
+    }
+    .pctResultUnit {
+      font-size: 0.7em;
+      color: var(--jnj-gray-dark);
+    }
+    .pctWarning {
+      font-size: 0.8em;
+      color: var(--jnj-red);
+      text-align: center;
+      margin-top: 10px;
+      font-weight: 600;
+      min-height: 1.2em;
+    }
+    .pctQuickBtns {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .pctQuickBtn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--jnj-gray-mid);
+      background: #fff;
+      color: var(--jnj-gray-dark);
+      font-size: 0.8em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pctQuickBtn:hover, .pctQuickBtn.active {
+      background: var(--jnj-red);
+      color: #fff;
+      border-color: var(--jnj-red);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>nBCA : TruFill Ratio Explorer</h1>
+    <p class="intro">
+      Slide to change dilution ratio (x:1). Then match the catheter ID/length
+      and pick your contrast (Isovue). This will show how much harder nBCA is
+      to push than your baseline contrast through the same setup.
+    </p>
+
+    <!-- ====== PERCENTAGE CALCULATOR (NEW) ====== -->
+    <div class="pctCalcSection">
+      <div class="pctCalcTitle">nBCA Percentage Calculator</div>
+      <div class="pctCalcSubtitle">Enter your desired nBCA % &mdash; based on 1 cc of nBCA</div>
+
+      <div class="pctQuickBtns">
+        <button class="pctQuickBtn" data-pct="10">10%</button>
+        <button class="pctQuickBtn" data-pct="15">15%</button>
+        <button class="pctQuickBtn" data-pct="20">20%</button>
+        <button class="pctQuickBtn" data-pct="25">25%</button>
+        <button class="pctQuickBtn" data-pct="33">33%</button>
+        <button class="pctQuickBtn" data-pct="50">50%</button>
+      </div>
+
+      <div class="pctInputRow">
+        <label for="pctInput">Desired nBCA %:</label>
+        <input id="pctInput" class="pctInput" type="number" min="1" max="100" step="1" value="20" />
+        <span style="font-size:1.2em;font-weight:700;">%</span>
+      </div>
+
+      <div class="pctResultsGrid">
+        <div class="pctResultCard pctHighlight">
+          <div class="pctResultLabel">Oil (Ethiodized) Needed</div>
+          <div class="pctResultValue red" id="pctOilVal">4.00</div>
+          <div class="pctResultUnit">cc (mL)</div>
         </div>
-        <div class="ratioGuidance">
-          <div>Left = thinner / very fast set (1:1)</div>
-          <div>Right = thicker / slower set (10:1)</div>
+        <div class="pctResultCard">
+          <div class="pctResultLabel">Total Mixture Volume</div>
+          <div class="pctResultValue" id="pctTotalVal">5.00</div>
+          <div class="pctResultUnit">cc (mL)</div>
+        </div>
+        <div class="pctResultCard">
+          <div class="pctResultLabel">Equivalent Ratio (Oil : nBCA)</div>
+          <div class="pctResultValue" id="pctRatioVal">4 : 1</div>
+          <div class="pctResultUnit">oil : nBCA</div>
+        </div>
+        <div class="pctResultCard">
+          <div class="pctResultLabel">nBCA (fixed)</div>
+          <div class="pctResultValue">1.00</div>
+          <div class="pctResultUnit">cc (mL)</div>
         </div>
       </div>
 
-      <div class="sliderSection">
-        <input id="ratioSlider" type="range" min="1" max="10" step="1" value="4" />
-        <div class="sliderTicks"><span>1:1</span><span>5:1</span><span>10:1</span></div>
-      </div>
+      <div class="pctWarning" id="pctWarning"></div>
+    </div>
+    <!-- ====== END PERCENTAGE CALCULATOR ====== -->
 
-      <!-- catheter + deadspace inputs -->
-      <div class="metricsGrid">
-        <div class="metricCard">
-          <h3 class="metricTitle">Catheter Inner Diameter</h3>
-          <div class="row">
-            <select id="catPreset" class="inputField" style="width:auto">
-              <option value="custom" selected>Custom</option>
-              <option value="0.017">0.017" microcatheter</option>
-              <option value="0.021">0.021" microcatheter</option>
-              <option value="0.027">0.027" distal access</option>
-            </select>
-            <input id="catId" class="inputField" type="number" step="0.001" value="0.017" />
-            <select id="unitSelect" class="inputField">
-              <option value="inch" selected>inch</option>
-              <option value="mm">mm</option>
-            </select>
-          </div>
-          <div class="metricSub mmEcho">= <span id="idEcho">0.432</span> mm</div>
-        </div>
-        <div class="metricCard">
-          <h3 class="metricTitle">Catheter Length (cm)</h3>
-          <input id="catLen" class="inputField" type="number" step="1" value="150" />
-          <div class="metricSub">Tip-to-hub length</div>
-          <div class="row" style="margin-top:6px">
-            <label style="font-size:0.75em;display:flex;gap:6px;align-items:center">
-              <input id="hubInclude" type="checkbox" /> Include hub (mL):
-            </label>
-            <input id="hubVol" class="inputField" type="number" step="0.01" value="0.05" style="width:90px" />
-          </div>
-        </div>
-        <div class="metricCard">
-          <h3 class="metricTitle">Calc. Deadspace</h3>
-          <div class="metricValueMain" id="deadspaceVal">0.22</div>
-          <div class="metricSub">mL (total = tube + hub)</div>
-          <div class="flowSub">tube: <span id="tubeMlVal">0.22</span> mL &nbsp;|&nbsp; hub: <span id="hubMlVal">0.00</span> mL</div>
-        </div>
+    <div class="ratioHeader">
+      <div>
+        <div class="ratioLabelHeading">Ratio (x:1)</div>
+        <div class="ratioValue" id="ratioValue">4:1</div>
       </div>
-
-      <!-- contrast + key % delta -->
-      <div class="metricsGrid">
-        <div class="metricCard">
-          <h3 class="metricTitle">Contrast (baseline)</h3>
-          <select id="contrastSelect" class="inputField">
-            <option value="isovue300" selected>Isovue 300 (≈11.8 cP)</option>
-            <option value="isovue300_5050">Isovue 300 + Saline 50/50 (≈6.3 cP)</option>
-            <option value="isovue370">Isovue 370 (≈9.5 cP)</option>
-            <option value="isovue370_5050">Isovue 370 + Saline 50/50 (≈5.1 cP)</option>
-          </select>
-          <div class="metricSub">Pick the contrast you actually use</div>
-        </div>
-        <div class="metricCard highlight">
-          <h3 class="metricTitle">% ↑ vs Isovue (1 mL)</h3>
-          <div class="metricValueMain" id="percentIncreaseTop">--</div>
-          <div class="metricSub">Same cath & flow assumptions</div>
-        </div>
+      <div class="ratioGuidance">
+        <div>Left = thinner / very fast set (1:1)</div>
+        <div>Right = thicker / slower set (10:1)</div>
       </div>
-
-      <!-- nBCA metrics -->
-      <div class="metricsGrid">
-        <div class="metricCard">
-          <h3 class="metricTitle">Viscosity (nBCA mix)</h3>
-          <div class="metricValueMain" id="viscosityVal">16.7</div>
-          <div class="metricSub">centipoise (cP)</div>
-        </div>
-        <div class="metricCard highlight">
-          <h3 class="metricTitle">Polymerization Time</h3>
-          <div class="metricValueMain" id="polyTimeVal">10–12 s</div>
-          <div class="metricSub" id="polySourceVal">Extrapolated</div>
-        </div>
-        <div class="metricCard">
-          <h3 class="metricTitle">Set Speed</h3>
-          <div class="metricSpeedValue" id="polySpeedVal">Fast (wall sticking likely)</div>
-        </div>
-      </div>
-
-      <!-- force metrics -->
-      <div class="metricsGrid">
-        <div class="metricCard">
-          <h3 class="metricTitle">Thumb Force (1 mL nBCA)</h3>
-          <div class="metricValueMain" id="lbf1Val">160.0</div>
-          <div class="metricSub">lbf (approx, adjusted)</div>
-          <div class="flowSub">@ 0.03 mL/s – <span id="flow03_1"></span> lbf</div>
-          <div class="flowSub">@ 0.06 mL/s – <span id="flow06_1"></span> lbf</div>
-        </div>
-        <div class="metricCard">
-          <h3 class="metricTitle">Thumb Force (3 mL nBCA)</h3>
-          <div class="metricValueMain" id="lbf3Val">192.4</div>
-          <div class="metricSub">lbf (approx, adjusted)</div>
-          <div class="flowSub">@ 0.03 mL/s – <span id="flow03_3"></span> lbf</div>
-          <div class="flowSub">@ 0.06 mL/s – <span id="flow06_3"></span> lbf</div>
-        </div>
-        <div class="metricCard">
-          <h3 class="metricTitle">Baseline: 1 mL Isovue</h3>
-          <div class="metricValueMain" id="baselineIsovueLbf">--</div>
-          <div class="metricSub">Same cath, same deadspace</div>
-          <div class="flowSub">Extra force for current nBCA: <span id="percentIncreaseInline">--</span></div>
-        </div>
-      </div>
-
-      <div class="tipsBlock">
-        <h3 class="tipsTitle">Tips for Successful nBCA Delivery</h3>
-        <ul class="tipsList">
-          <li>Pick the actual catheter ID and length you’re using (this changes dead-space correction).</li>
-          <li>Pick the actual contrast (Isovue 300 vs 370 or 50/50) to calibrate the baseline push.</li>
-          <li>Maintain laminar flow and a consistent injection rate to reduce reflux risk.</li>
-          <li>Monitor the glue column closely and adjust injection speed as polymerization begins.</li>
-          <li>Flush promptly with dextrose to prevent premature polymerization in the catheter.</li>
-          <li>Select the nBCA:oil ratio based on vessel size and flow characteristics.</li>
-        </ul>
-      </div>
-
-      <p class="disclaimer">
-        Disclaimer: This visualization is for entertainment purposes only and does not represent medical or experimental
-        data. Copyright 2025 Howard Doss
-      </p>
     </div>
 
-    <script>
-      // ---- constants ----
-      const PSI_TO_LBF = 0.224809;
-      const inchToMm = 25.4;
+    <div class="sliderSection">
+      <input id="ratioSlider" type="range" min="1" max="10" step="1" value="4" />
+      <div class="sliderTicks"><span>1:1</span><span>5:1</span><span>10:1</span></div>
+    </div>
 
-      // ---- DOM refs ----
-      const slider = document.getElementById("ratioSlider");
-      const ratioValue = document.getElementById("ratioValue");
-      const viscosityVal = document.getElementById("viscosityVal");
-      const polyTimeVal = document.getElementById("polyTimeVal");
-      const polySourceVal = document.getElementById("polySourceVal");
-      const polySpeedVal = document.getElementById("polySpeedVal");
-      const lbf1Val = document.getElementById("lbf1Val");
-      const lbf3Val = document.getElementById("lbf3Val");
-      const flow03_1 = document.getElementById("flow03_1");
-      const flow06_1 = document.getElementById("flow06_1");
-      const flow03_3 = document.getElementById("flow03_3");
-      const flow06_3 = document.getElementById("flow06_3");
-      const catLenInput = document.getElementById("catLen");
-      const idInput = document.getElementById("catId");
-      const unitSelect = document.getElementById("unitSelect");
-      const idEcho = document.getElementById("idEcho");
-      const hubInclude = document.getElementById("hubInclude");
-      const hubVolInput = document.getElementById("hubVol");
-      const deadspaceVal = document.getElementById("deadspaceVal");
-      const tubeMlVal = document.getElementById("tubeMlVal");
-      const hubMlVal = document.getElementById("hubMlVal");
-      const contrastSelect = document.getElementById("contrastSelect");
-      const percentIncreaseInline = document.getElementById("percentIncreaseInline");
-      const percentIncreaseTop = document.getElementById("percentIncreaseTop");
-      const baselineIsovueLbf = document.getElementById("baselineIsovueLbf");
-      const catPreset = document.getElementById("catPreset");
+    <!-- catheter + deadspace inputs -->
+    <div class="metricsGrid">
+      <div class="metricCard">
+        <h3 class="metricTitle">Catheter Inner Diameter</h3>
+        <div class="row">
+          <select id="catPreset" class="inputField" style="width:auto">
+            <option value="custom" selected>Custom</option>
+            <option value="0.017">0.017" microcatheter</option>
+            <option value="0.021">0.021" microcatheter</option>
+            <option value="0.027">0.027" distal access</option>
+          </select>
+          <input id="catId" class="inputField" type="number" step="0.001" value="0.017" />
+          <select id="unitSelect" class="inputField">
+            <option value="inch" selected>inch</option>
+            <option value="mm">mm</option>
+          </select>
+        </div>
+        <div class="metricSub mmEcho">= <span id="idEcho">0.432</span> mm</div>
+      </div>
+      <div class="metricCard">
+        <h3 class="metricTitle">Catheter Length (cm)</h3>
+        <input id="catLen" class="inputField" type="number" step="1" value="150" />
+        <div class="metricSub">Tip-to-hub length</div>
+        <div class="row" style="margin-top:6px">
+          <label style="font-size:0.75em;display:flex;gap:6px;align-items:center">
+            <input id="hubInclude" type="checkbox" /> Include hub (mL):
+          </label>
+          <input id="hubVol" class="inputField" type="number" step="0.01" value="0.05" style="width:90px" />
+        </div>
+      </div>
+      <div class="metricCard">
+        <h3 class="metricTitle">Calc. Deadspace</h3>
+        <div class="metricValueMain" id="deadspaceVal">0.22</div>
+        <div class="metricSub">mL (total = tube + hub)</div>
+        <div class="flowSub">tube: <span id="tubeMlVal">0.22</span> mL &nbsp;|&nbsp; hub: <span id="hubMlVal">0.00</span> mL</div>
+      </div>
+    </div>
 
-      // ---- reference data ----
-      const table = {
-        1: { ratioLabel: "1:1", viscosity: 9.1, polyTime: "3.2 s", source: "Takasawa 2012", polySpeed: "Very Fast (tip reflux risk)", psi1: 387.9, psi3: 465.7 },
-        2: { ratioLabel: "1:2", viscosity: 12.7, polyTime: "4.7 s", source: "Takasawa 2012", polySpeed: "Very Fast (tip reflux risk)", psi1: 543.5, psi3: 652.8 },
-        3: { ratioLabel: "1:3", viscosity: 15.1, polyTime: "7.5 s", source: "Takasawa 2012", polySpeed: "Fast (wall sticking likely)", psi1: 642.9, psi3: 772.8 },
-        4: { ratioLabel: "1:4", viscosity: 16.7, polyTime: "10–12 s", source: "Extrapolated", polySpeed: "Fast (wall sticking likely)", psi1: 711.4, psi3: 855.1 },
-        5: { ratioLabel: "1:5", viscosity: 17.8, polyTime: "15 s", source: "Extrapolated", polySpeed: "Fast (wall sticking likely)", psi1: 761.1, psi3: 914.9 },
-        6: { ratioLabel: "1:6", viscosity: 18.7, polyTime: "20 s", source: "Extrapolated", polySpeed: "Moderate (drift reflux possible)", psi1: 798.6, psi3: 960.0 },
-        7: { ratioLabel: "1:7", viscosity: 19.4, polyTime: "25 s", source: "Extrapolated", polySpeed: "Moderate (drift reflux possible)", psi1: 828.7, psi3: 995.3 },
-        8: { ratioLabel: "1:8", viscosity: 20.0, polyTime: "30 s", source: "Extrapolated", polySpeed: "Moderate (drift reflux possible)", psi1: 852.4, psi3: 1023.6 },
-        9: { ratioLabel: "1:9", viscosity: 20.4, polyTime: "40 s", source: "Extrapolated", polySpeed: "Slow (distal escape risk)", psi1: 871.1, psi3: 1047.0 },
-        10: { ratioLabel: "1:10", viscosity: 20.8, polyTime: "45–60 s", source: "Extrapolated", polySpeed: "Slow (distal escape risk)", psi1: 887.4, psi3: 1066.4 }
-      };
+    <!-- contrast + key % delta -->
+    <div class="metricsGrid">
+      <div class="metricCard">
+        <h3 class="metricTitle">Contrast (baseline)</h3>
+        <select id="contrastSelect" class="inputField">
+          <option value="isovue300" selected>Isovue 300 (&approx;11.8 cP)</option>
+          <option value="isovue300_5050">Isovue 300 + Saline 50/50 (&approx;6.3 cP)</option>
+          <option value="isovue370">Isovue 370 (&approx;9.5 cP)</option>
+          <option value="isovue370_5050">Isovue 370 + Saline 50/50 (&approx;5.1 cP)</option>
+        </select>
+        <div class="metricSub">Pick the contrast you actually use</div>
+      </div>
+      <div class="metricCard highlight">
+        <h3 class="metricTitle">% &uarr; vs Isovue (1 mL)</h3>
+        <div class="metricValueMain" id="percentIncreaseTop">--</div>
+        <div class="metricSub">Same cath &amp; flow assumptions</div>
+      </div>
+    </div>
 
-      // ---- helpers ----
-      function getIdInMm() {
-        let raw = Number(idInput.value);
-        if (!isFinite(raw) || raw <= 0) raw = 0;
-        const mm = unitSelect.value === "inch" ? raw * inchToMm : raw;
-        idEcho.textContent = mm > 0 ? mm.toFixed(3) : "0.000";
-        return mm;
+    <!-- nBCA metrics -->
+    <div class="metricsGrid">
+      <div class="metricCard">
+        <h3 class="metricTitle">Viscosity (nBCA mix)</h3>
+        <div class="metricValueMain" id="viscosityVal">16.7</div>
+        <div class="metricSub">centipoise (cP)</div>
+      </div>
+      <div class="metricCard highlight">
+        <h3 class="metricTitle">Polymerization Time</h3>
+        <div class="metricValueMain" id="polyTimeVal">10&ndash;12 s</div>
+        <div class="metricSub" id="polySourceVal">Extrapolated</div>
+      </div>
+      <div class="metricCard">
+        <h3 class="metricTitle">Set Speed</h3>
+        <div class="metricSpeedValue" id="polySpeedVal">Fast (wall sticking likely)</div>
+      </div>
+    </div>
+
+    <!-- force metrics -->
+    <div class="metricsGrid">
+      <div class="metricCard">
+        <h3 class="metricTitle">Thumb Force (1 mL nBCA)</h3>
+        <div class="metricValueMain" id="lbf1Val">160.0</div>
+        <div class="metricSub">lbf (approx, adjusted)</div>
+        <div class="flowSub">@ 0.03 mL/s &ndash; <span id="flow03_1"></span> lbf</div>
+        <div class="flowSub">@ 0.06 mL/s &ndash; <span id="flow06_1"></span> lbf</div>
+      </div>
+      <div class="metricCard">
+        <h3 class="metricTitle">Thumb Force (3 mL nBCA)</h3>
+        <div class="metricValueMain" id="lbf3Val">192.4</div>
+        <div class="metricSub">lbf (approx, adjusted)</div>
+        <div class="flowSub">@ 0.03 mL/s &ndash; <span id="flow03_3"></span> lbf</div>
+        <div class="flowSub">@ 0.06 mL/s &ndash; <span id="flow06_3"></span> lbf</div>
+      </div>
+      <div class="metricCard">
+        <h3 class="metricTitle">Baseline: 1 mL Isovue</h3>
+        <div class="metricValueMain" id="baselineIsovueLbf">--</div>
+        <div class="metricSub">Same cath, same deadspace</div>
+        <div class="flowSub">Extra force for current nBCA: <span id="percentIncreaseInline">--</span></div>
+      </div>
+    </div>
+
+    <div class="tipsBlock">
+      <h3 class="tipsTitle">Tips for Successful nBCA Delivery</h3>
+      <ul class="tipsList">
+        <li>Pick the actual catheter ID and length you're using (this changes dead-space correction).</li>
+        <li>Pick the actual contrast (Isovue 300 vs 370 or 50/50) to calibrate the baseline push.</li>
+        <li>Maintain laminar flow and a consistent injection rate to reduce reflux risk.</li>
+        <li>Monitor the glue column closely and adjust injection speed as polymerization begins.</li>
+        <li>Flush promptly with dextrose to prevent premature polymerization in the catheter.</li>
+        <li>Select the nBCA:oil ratio based on vessel size and flow characteristics.</li>
+      </ul>
+    </div>
+
+    <p class="disclaimer">
+      Disclaimer: This visualization is for entertainment purposes only and does not represent medical or experimental data. Copyright 2025 Howard Doss
+    </p>
+  </div>
+
+  <script>
+    // ---- constants ----
+    const PSI_TO_LBF = 0.224809;
+    const inchToMm  = 25.4;
+
+    // ---- DOM refs ----
+    const slider           = document.getElementById("ratioSlider");
+    const ratioValue       = document.getElementById("ratioValue");
+    const viscosityVal     = document.getElementById("viscosityVal");
+    const polyTimeVal      = document.getElementById("polyTimeVal");
+    const polySourceVal    = document.getElementById("polySourceVal");
+    const polySpeedVal     = document.getElementById("polySpeedVal");
+    const lbf1Val          = document.getElementById("lbf1Val");
+    const lbf3Val          = document.getElementById("lbf3Val");
+    const flow03_1         = document.getElementById("flow03_1");
+    const flow06_1         = document.getElementById("flow06_1");
+    const flow03_3         = document.getElementById("flow03_3");
+    const flow06_3         = document.getElementById("flow06_3");
+    const catLenInput      = document.getElementById("catLen");
+    const idInput          = document.getElementById("catId");
+    const unitSelect       = document.getElentById("unitSelect");
+    const idEcho           = document.getElementById("idEcho");
+    const hubInclude       = document.getElementById("hubInclude");
+    const hubVolInput      = document.getElementById("hubVol");
+    const deadspaceVal     = document.getElementById("deadspaceVal");
+    const tubeMlVal        = document.getElementById("tubeMlVal");
+    const hubMlVal         = document.getElementById("hubMlVal");
+    const contrastSelect   = document.getElementById("contrastSelect");
+    const percentIncreaseInline = document.getElementById("percentIncreaseInline");
+    const percentIncreaseTop    = document.getElementById("percentIncreaseTop");
+    const baselineIsovueLbf     = document.getElementById("baselineIsovueLbf");
+    const catPreset        = document.getElementById("catPreset");
+
+    // ---- percentage calculator DOM refs ----
+    const pctInput     = document.getElementById("pctInput");
+    const pctOilVal    = document.getElementById("pctOilVal");
+    const pctTotalVal  = document.getElementById("pctTotalVal");
+    const pctRatioVal  = document.getElementById("pctRatioVal");
+    const pctWarning   = document.getElementById("pctWarning");
+    const pctQuickBtns = document.querySelectorAll(".pctQuickBtn");
+
+    // ---- reference data ----
+    const table = {
+      1:  { ratioLabel:"1:1",  viscosity:9.1,  polyTime:"3.2 s",     source:"Takasawa 2012", polySpeed:"Very Fast (tip reflux risk)",       psi1:387.9, psi3:465.7  },
+      2:  { ratioLabel:"1:2",  viscosity:12.7, polyTime:"4.7 s",     source:"Takasawa 2012", polySpeed:"Very Fast (tip reflux risk)",       psi1:543.5, psi3:652.8  },
+      3:  { ratioLabel:"1:3",  viscosity:15.1, polyTime:"7.5 s",     source:"Takasawa 2012", polySpeed:"Fast (wall sticking likely)",       psi1:642.9, psi3:772.8  },
+      4:  { ratioLabel:"1:4",  viscosity:16.7, polyTime:"10\u201312 s", source:"Extrapolated",  polySpeed:"Fast (wall sticking likely)",       psi1:711.4, psi3:855.1  },
+      5:  { ratioLabel:"1:5",  viscosity:17.8, polyTime:"15 s",      source:"Extrapolated",  polySpeed:"Fast (wall sticking likely)",       psi1:761.1, psi3:914.9  },
+      6:  { ratioLabel:"1:6",  viscosity:18.7, polyTime:"20 s",      source:"Extrapolated",  polySpeed:"Moderate (drift reflux possible)", psi1:798.6, psi3:960.0  },
+      7:  { ratioLabel:"1:7",  viscosity:19.4, polyTime:"25 s",      source:"Extrapolated",  polySpeed:"Moderate (drift reflux possible)", psi1:828.7, psi3:995.3  }, ,
+      8:  { ratioLabel:"1:8",  viscosity:20.0, polyTime:"30 s",      source:"Extrapolated",  polySpeed:"Moderate (drift reflux possible)", psi1:852.4, psi3:1023.6 },
+      9:  { ratioLabel:"1:9",  viscosity:20.4, polyTime:"40 s",      source:"Extrapolated",  polySpeed:"Slow (distal escape risk)",        psi1:871.1, psi3:1047.0 },
+      10: { ratioLabel:"1:10", viscosity:20.8, polyTime:"45\u201360 s", source:"Extrapolated",  polySpeed:"Slow (distal escape risk)",        psi1:887.4, psi3:1066.4 }
+    };
+
+    // ---- helpers ----
+    function getIdInMm() {
+      let raw = Number(idInput.value);
+      if (!isFinite(raw) || raw <= 0) raw = 0;
+      const mm = unitSelect.value === "inch" ? raw * inchToMm : raw;
+      idEcho.textContent = mm > 0 ? mm.toFixed(3) : "0.000";
+      return mm;
+    }
+
+    function estimateDeadspaceMl(idMm, lengthCm) {
+      const d   = Math.max(0, Number(idMm)    || 0);
+      const Lcm = Math.max(0, Number(lengthCm)|| 0);
+      if (d === 0 || Lcm === 0) return 0;
+      const rMm   = d / 2;
+      const Lmm   = Lcm * 10;
+      const volMm3 = Math.PI * rMm * rMm * Lmm;
+      return volMm3 / 1000;
+    }
+
+    function clamp(val, min, max) {
+      const num = Number(val);
+      if (isNaN(num)) return min;
+      return Math.min(Math.max(num, min), max);
+    }
+
+    function getContrastViscosity() {
+      switch (contrastSelect.value) {
+        case 'isovue300':      return 11.8;
+        case 'isovue300_5050': return (11.8 + 0.7) / 2;
+        case 'isovue370':      return 9.5;
+        case 'isovue370_5050': return (9.5 + 0.7) / 2;
+        default:               return 11.8;
+      }
+    }
+
+    // ---- Percentage Calculator ----
+    function updatePctCalc() {
+      const pct = clamp(Number(pctInput.value), 1, 100);
+      const nBCA_cc = 1.0;  // fixed at 1 cc
+
+      // nBCA% = nBCA / (nBCA + oil) * 100
+      // so oil = nBCA * (100 / pct - 1)
+      const totalVol = nBCA_cc / (pct / 100);
+      const oilVol   = totalVol - nBCA_cc;
+      const oilRatio = oilVol / nBCA_cc;  // oil:nBCA ratio
+
+      pctOilVal.textContent   = oilVol.toFixed(2);
+      pctTotalVal.textContent = totalVol.toFixed(2);
+
+      // display ratio - round to 1 decimal if not whole
+      const ratioRounded = Math.round(oilRatio * 10) / 10;
+      const ratioDisplay = Number.isInteger(ratioRounded) ? ratioRounded : ratioRounded.toFixed(1);
+      pctRatioVal.textContent = ratioDisplay + " : 1";
+
+      // update quick button active states
+      pctQuickBtns.forEach(btn => {
+        btn.classList.toggle("active", Number(btn.dataset.pct) === pct);
+      });
+
+      // warnings
+      if (pct > 50) {
+        pctWarning.textContent = "\u26a0 Very high nBCA concentration \u2014 extremely fast polymerization, high catheter-trapping risk.";
+      } else if (pct < 10) {
+        pctWarning.textContent = "\u26a0 Very dilute mixture \u2014 slow set, risk of distal migration.";
+      } else {
+        pctWarning.textContent = "";
       }
 
-      function estimateDeadspaceMl(idMm, lengthCm) {
-        const d = Math.max(0, Number(idMm) || 0);
-        const Lcm = Math.max(0, Number(lengthCm) || 0);
-        if (d === 0 || Lcm === 0) return 0;
-        const rMm = d / 2;
-        const Lmm = Lcm * 10;              // cm -> mm
-        const volMm3 = Math.PI * rMm * rMm * Lmm; // π r^2 L in mm^3
-        return volMm3 / 1000;              // mm^3 -> mL
+      // If the oil ratio is between 1-10 (integer), sync the main slider
+      const nearestInt = Math.round(oilRatio);
+      if (nearestInt >= 1 && nearestInt <= 10 && Math.abs(oilRatio - nearestInt) < 0.15) {
+        slider.value = nearestInt;
+        updateUI(nearestInt);
       }
+    }
 
-      function clamp(val, min, max) {
-        const num = Number(val);
-        if (isNaN(num)) return min;
-        return Math.min(Math.max(num, min), max);
+    // Quick-select buttons
+    pctQuickBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        pctInput.value = btn.dataset.pct;
+        updatePctCalc();
+      });
+    });
+
+    pctInput.addEventListener("input", updatePctCalc);
+
+    function updateUI(rawVal) {
+      const safeVal = clamp(rawVal, 1, 10);
+      const row     = table[safeVal];
+      const idMm    = getIdInMm();
+      const len     = Number(catLenInput.value) || 0;
+
+      const tubeMl      = estimateDeadspaceMl(idMm, len);
+      const hubMl       = hubInclude.checked ? Math.max(0, Number(hubVolInput.value) || 0) : 0;
+      const deadspaceMl = tubeMl + hubMl;
+
+      ratioValue.textContent   = safeVal + ":1";
+      viscosityVal.textContent = row.viscosity.toFixed(1);
+      polyTimeVal.textContent  = row.polyTime;
+      polySourceVal.textContent = row.source;
+      polySpeedVal.textContent  = row.polySpeed;
+      deadspaceVal.textContent  = deadspaceMl.toFixed(2);
+      if (tubeMlVal) tubeMlVal.textContent = tubeMl.toFixed(2);
+      if (hubMlVal)  hubMlVal.textContent  = hubMl.toFixed(2);
+
+      const syr1Vol = 1.0;
+      const syr3Vol = 3.0;
+
+      const adjPsi1  = row.psi1 * (1 + deadspaceMl / syr1Vol);
+      const adjPsi3  = row.psi3 * (1 + deadspaceMl / syr3Vol);
+      const adjLbf1  = adjPsi1 * PSI_TO_LBF;
+      const adjLbf3  = adjPsi3 * PSI_TO_LBF;
+
+      lbf1Val.textContent = adjLbf1.toFixed(1);
+      lbf3Val.textContent = adjLbf3.toFixed(1);
+      flow03_1.textContent = (adjLbf1 * 0.9).toFixed(1);
+      flow06_1.textContent = (adjLbf1 * 1.1).toFixed(1);
+      flow03_3.textContent = (adjLbf3 * 0.9).toFixed(1);
+      flow06_3.textContent = (adjLbf3 * 1.1).toFixed(1);
+
+      const contrastVisc = getContrastViscosity();
+      const basePsi1     = row.psi1 * (contrastVisc / row.viscosity);
+      const adjBasePsi1  = basePsi1 * (1 + deadspaceMl / syr1Vol);
+      const adjBaseLbf1  = adjBasePsi1 * PSI_TO_LBF;
+      baselineIsovueLbf.textContent = adjBaseLbf1.toFixed(1);
+
+      if (adjBaseLbf1 > 0) {
+        const pct = ((adjLbf1 - adjBaseLbf1) / adjBaseLbf1) * 100;
+        const txt = pct.toFixed(1) + "%";
+        if (percentIncreaseInline) percentIncreaseInline.textContent = txt;
+        if (percentIncreaseTop)    percentIncreaseTop.textContent    = txt;
+      } else {
+        if (percentIncreaseInline) percentIncreaseInline.textContent = "--";
+        if (percentIncreaseTop)    percentIncreaseTop.textContent    = "--";
       }
+    }
 
-      function getContrastViscosity() {
-        // Approximate 37°C viscosities (cP)
-        // Saline ~ water ~0.7 cP at 37°C; 50/50 assumed linear blend
-        switch (contrastSelect.value) {
-          case 'isovue300': return 11.8;
-          case 'isovue300_5050': return (11.8 + 0.7) / 2; // ≈6.25
-          case 'isovue370': return 9.5;
-          case 'isovue370_5050': return (9.5 + 0.7) / 2; // ≈5.1
-          default: return 11.8;
-        }
-      }
+    // ---- sanity tests ----
+    (function tests(){
+      function approxEq(a,b,tol=0.01){ return Math.abs(a-b) <= tol; }
+      const L = 150;
+      const d017 = 0.017*inchToMm, d021 = 0.021*inchToMm, d027 = 0.027*inchToMm;
+      console.assert(approxEq(estimateDeadspaceMl(d017, L), 0.220), 'Deadspace 0.017" failed');
+      console.assert(approxEq(estimateDeadspaceMl(d021, L), 0.335), 'Deadspace 0.021" failed');
+      console.assert(approxEq(estimateDeadspaceMl(d027, L), 0.554), 'Deadspace 0.027" failed');
+      const saved = contrastSelect.value;
+      contrastSelect.value = 'isovue300';
+      console.assert(approxEq(getContrastViscosity(), 11.8, 0.2), 'isovue300 cP map');
+      contrastSelect.value = 'isovue300_5050';
+      console.assert(approxEq(getContrastViscosity(), (11.8+0.7)/2, 0.2), 'isovue300_5050 cP map');
+      contrastSelect.value = 'isovue370';
+      console.assert(approxEq(getContrastViscosity(), 9.5, 0.2), 'isovue370 cP map');
+      contrastSelect.value = 'isovue370_5050';
+      console.assert(approxEq(getContrastViscosity(), (9.5+0.7)/2, 0.2), 'isovue370_5050 cP map');
+      contrastSelect.value = saved;
+    })();
 
-      function updateUI(rawVal) {
-        const safeVal = clamp(rawVal, 1, 10);
-        const row = table[safeVal];
-        const idMm = getIdInMm();
-        const len = Number(catLenInput.value) || 0;
+    // ---- init + listeners ----
+    function syncPreset(){
+      if (catPreset.value === 'custom') return;
+      idInput.value    = catPreset.value;
+      unitSelect.value = 'inch';
+      getIdInMm();
+    }
 
-        // deadspace = tube + optional hub
-        const tubeMl = estimateDeadspaceMl(idMm, len);
-        const hubMl = hubInclude.checked ? Math.max(0, Number(hubVolInput.value) || 0) : 0;
-        const deadspaceMl = tubeMl + hubMl;
+    updateUI(slider.value);
+    updatePctCalc();
 
-        ratioValue.textContent = safeVal + ":1";
-        viscosityVal.textContent = row.viscosity.toFixed(1);
-        polyTimeVal.textContent = row.polyTime;
-        polySourceVal.textContent = row.source;
-        polySpeedVal.textContent = row.polySpeed;
-        deadspaceVal.textContent = deadspaceMl.toFixed(2);
-        if (tubeMlVal) tubeMlVal.textContent = tubeMl.toFixed(2);
-        if (hubMlVal) hubMlVal.textContent = hubMl.toFixed(2);
-
-        const syr1Vol = 1.0;
-        const syr3Vol = 3.0;
-
-        // nBCA forces (original table + deadspace adjustment)
-        const adjPsi1 = row.psi1 * (1 + deadspaceMl / syr1Vol);
-        const adjPsi3 = row.psi3 * (1 + deadspaceMl / syr3Vol);
-        const adjLbf1 = adjPsi1 * PSI_TO_LBF;
-        const adjLbf3 = adjPsi3 * PSI_TO_LBF;
-
-        lbf1Val.textContent = adjLbf1.toFixed(1);
-        lbf3Val.textContent = adjLbf3.toFixed(1);
-        flow03_1.textContent = (adjLbf1 * 0.9).toFixed(1);
-        flow06_1.textContent = (adjLbf1 * 1.1).toFixed(1);
-        flow03_3.textContent = (adjLbf3 * 0.9).toFixed(1);
-        flow06_3.textContent = (adjLbf3 * 1.1).toFixed(1);
-
-        // baseline Isovue (1 mL) using viscosity scaling
-        const contrastVisc = getContrastViscosity();
-        const basePsi1 = row.psi1 * (contrastVisc / row.viscosity);
-        const adjBasePsi1 = basePsi1 * (1 + deadspaceMl / syr1Vol);
-        const adjBaseLbf1 = adjBasePsi1 * PSI_TO_LBF;
-        baselineIsovueLbf.textContent = adjBaseLbf1.toFixed(1);
-
-        // percent increase vs baseline (top & inline)
-        if (adjBaseLbf1 > 0) {
-          const pct = ((adjLbf1 - adjBaseLbf1) / adjBaseLbf1) * 100;
-          const txt = pct.toFixed(1) + "%";
-          if (percentIncreaseInline) percentIncreaseInline.textContent = txt;
-          if (percentIncreaseTop) percentIncreaseTop.textContent = txt;
-        } else {
-          if (percentIncreaseInline) percentIncreaseInline.textContent = "--";
-          if (percentIncreaseTop) percentIncreaseTop.textContent = "--";
-        }
-      }
-
-      // ---- sanity tests ----
-      (function tests(){
-        function approxEq(a,b,tol=0.01){ return Math.abs(a-b) <= tol; }
-        // Deadspace tests at 150 cm
-        const L = 150;
-        const d017 = 0.017*inchToMm, d021 = 0.021*inchToMm, d027 = 0.027*inchToMm;
-        console.assert(approxEq(estimateDeadspaceMl(d017, L), 0.220), 'Deadspace 0.017" failed');
-        console.assert(approxEq(estimateDeadspaceMl(d021, L), 0.335), 'Deadspace 0.021" failed');
-        console.assert(approxEq(estimateDeadspaceMl(d027, L), 0.554), 'Deadspace 0.027" failed');
-        // Contrast viscosity mapping
-        const saved = contrastSelect.value;
-        contrastSelect.value = 'isovue300'; console.assert(approxEq(getContrastViscosity(), 11.8, 0.2), 'isovue300 cP map');
-        contrastSelect.value = 'isovue300_5050'; console.assert(approxEq(getContrastViscosity(), (11.8+0.7)/2, 0.2), 'isovue300_5050 cP map');
-        contrastSelect.value = 'isovue370'; console.assert(approxEq(getContrastViscosity(), 9.5, 0.2), 'isovue370 cP map');
-        contrastSelect.value = 'isovue370_5050'; console.assert(approxEq(getContrastViscosity(), (9.5+0.7)/2, 0.2), 'isovue370_5050 cP map');
-        contrastSelect.value = saved;
-      })();
-
-      // ---- init + listeners ----
-      function syncPreset(){
-        if (catPreset.value === 'custom') return;
-        idInput.value = catPreset.value;
-        unitSelect.value = 'inch';
-        getIdInMm();
-      }
-
-      updateUI(slider.value);
-
-      slider.addEventListener('input', (e) => updateUI(e.target.value));
-      idInput.addEventListener('input', () => updateUI(slider.value));
-      unitSelect.addEventListener('change', () => updateUI(slider.value));
-      catPreset.addEventListener('change', () => { syncPreset(); updateUI(slider.value); });
-      catLenInput.addEventListener('input', () => updateUI(slider.value));
-      hubInclude.addEventListener('change', () => updateUI(slider.value));
-      hubVolInput.addEventListener('input', () => updateUI(slider.value));
-      contrastSelect.addEventListener('change', () => updateUI(slider.value));
-    </script>
-  </body>
+    slider.addEventListener('input',   (e) => updateUI(e.target.value));
+    idInput.addEventListener('input',  () => updateUI(slider.value));
+    unitSelect.addEventListener('change', () => updateUI(slider.value));
+    catPreset.addEventListener('change',  () => { syncPreset(); updateUI(slider.value); });
+    catLenInput.addEventListener('input', () => updateUI(slider.value));
+    hubInclude.addEventListener('change', () => updateUI(slider.value));
+    hubVolInput.addEventListener('input', () => updateUI(slider.value));
+    contrastSelect.addEventListener('change', () => updateUI(slider.value));
+  </script>
+</body>
 </html>
